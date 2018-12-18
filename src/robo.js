@@ -1,43 +1,41 @@
-const axios = require('axios')
-const cheerio = require('cheerio')
+var rp = require('request-promise')
+var cheerio = require('cheerio')
 
-var entryDate, endDate;
-
-exports = {
-    entryDate,
-    endDate
+var options = {
+  uri: 'https://myreservations.omnibees.com/default.aspx?q=5462&version=MyReservation#/&diff=false&CheckIn=18122018&CheckOut=19122018&Code=&group_code=&loyality_card=&NRooms=1&ad=1&ch=0&ag=-',
+  transform: function (html) {
+    return cheerio.load(html)
+  }
 }
 
-
-const LeanResponse = (html, config) => {
-    let $ = cheerio.load(html)
-    return $(config.title).map(config.returnResponse($)).get()
+function processData(data) {
+  console.log(JSON.stringify(data));
 }
 
-const SearchNoticies = async (LeanResponse, config) => {
-    try {
-        const response = await axios({ url: config.url, method: 'get' })
-        const objectReturn = await LeanResponse(response.data, config)
-        return Promise.resolve(objectReturn)
-    } catch (err) {
-        return Promise.reject(err)
-    }
-}
+rp(options)
+  .then(($) => {
 
-const config = {
-    title: '.maintable ',
-    body: {
-        table: 'td',
-        class: 'roomExcerpt'
-    },
-    url: `https://myreservations.omnibees.com/default.aspx?q=5462&version=MyReservation#/&diff=false&CheckIn=${this.entryDate}&CheckOut=${this.endDate}&Code=&group_code=&loyality_card=&NRooms=1&ad=1&ch=0&ag=-`,
-    returnResponse: ($) => (index, element) => ({
+    var rooms = [];
+
+    $('roomExcerpt').each((i, item) => {
+      console.log('Aqui: ', $(item))
 
 
+      var room = {
+        nome: $(item).find('.excerpt').find('h5').children('a').text(),
+        descricao: $(item).find('.excerpt').find('p').children('a').text(),
+        preco: $(item).find('.bestPriceTextColor').text(),
+        img: $(item).find('.slide').children('a').find('img').attr("src")
+      }
+
+      if (room.nome !== "")
+        rooms.push(room)
     })
-}
 
-SearchNoticies(LeanResponse, config)
-    .then(resp => console.log('response', resp))
-    .catch(err => console.log('error', err))
 
+    processData(rooms)
+
+  })
+  .catch((err) => {
+    console.log(err);
+  })

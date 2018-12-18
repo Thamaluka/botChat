@@ -10,11 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0",
-    "botbuilder": "^3.13.1",
     "cheerio": "^1.0.0-rc.2",
-    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
     "request": "^2.88.0",
-    "restify": "^7.3.0"
+    "request-promise": "^4.2.2",
+    "restify": "^7.3.0",
+    "save": "^2.3.3"
   }
 }
